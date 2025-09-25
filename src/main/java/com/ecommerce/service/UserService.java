@@ -1,6 +1,7 @@
 package com.ecommerce.service;
 
 import com.ecommerce.model.entity.User;
+import com.ecommerce.model.role.Role;
 import com.ecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User findOrCreateGoogleUser(String email, String name) {
+    public User findOrCreateGoogleUser(String email, String name, Role role) {
         return userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setName(name);
+            newUser.setRole(role);
             return userRepository.save(newUser);
         });
     }

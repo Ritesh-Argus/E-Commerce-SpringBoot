@@ -3,6 +3,7 @@ package com.ecommerce.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
@@ -24,13 +26,12 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("**").permitAll()
+                        .requestMatchers("/auth/prepare", "oauth2/callback", "/error").permitAll()
                         .anyRequest().authenticated())
                 //.oauth2Login(Customizer.withDefaults())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler)
                 );
-
         return http.build();
     }
 

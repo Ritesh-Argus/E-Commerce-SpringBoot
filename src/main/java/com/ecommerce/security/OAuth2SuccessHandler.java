@@ -1,10 +1,12 @@
 package com.ecommerce.security;
 
 import com.ecommerce.model.entity.User;
+import com.ecommerce.model.role.Role;
 import com.ecommerce.service.UserService;
 import com.ecommerce.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -40,7 +42,21 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        User user = userService.findOrCreateGoogleUser(email, name);
+        HttpSession session = request.getSession(false);
+        String role = null;
+        if (session != null) {
+            Object s = session.getAttribute("oauth_role");
+            if (s != null) {
+                role = s.toString();
+                session.removeAttribute("oauth_role");
+            } else {
+                role = "CUSTOMER";
+            }
+        }else{
+            role="CUSTOMER";
+        }
+
+        User user = userService.findOrCreateGoogleUser(email, name, Role.valueOf(role));
 
         try {
             String accessToken = jwtUtil.generateAccessToken(user);
